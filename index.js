@@ -5,6 +5,12 @@ const { data } = require("./data");
 
 app.use(express.json()); // Middleware that parses json
 
+// Temporary middleware for allowing cross origin requests
+app.use((req, res, next) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 app.get("/api/listings", (req, res) => {
   res.status(200).send({
     success: true,
