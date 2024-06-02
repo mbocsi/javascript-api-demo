@@ -40,6 +40,38 @@ app.get("/api/listings/:id", (req, res) => {
   }
 });
 
+app.put("/api/listings/:id", (req, res) => {
+  const { id } = req.params;
+  const newListing = req.body;
+  const listing = data.find((listing) => listing.id == id);
+  const keys = ["name", "userId", "askingPrice"];
+  if (!keys.every((key) => newListing.hasOwnProperty(key))) {
+    console.log("invalid format");
+    res.status(415).send();
+    return;
+  }
+  if (listing) {
+    listing.name = newListing.name;
+    listing.askingPrice = newListing.askingPrice;
+    listing.userId = newListing.userId;
+    res.status(200).send({ success: true, listing: listing });
+  } else {
+    data.push({ ...newListing, id: id });
+    res.status(201).send({ success: true, listing: { ...newListing, id: id } });
+  }
+});
+
+app.delete("/api/listings/:id", (req, res) => {
+  const { id } = req.params;
+  const index = data.findIndex((listing) => listing.id == id);
+  if (index > -1) {
+    data.splice(index, 1);
+    res.status(204).send();
+  } else {
+    res.status(404).send();
+  }
+});
+
 app.listen(PORT, () =>
   console.log(`The server is alive on http://localhost:${PORT}`),
 );
