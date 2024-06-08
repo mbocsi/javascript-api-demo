@@ -6,10 +6,12 @@ const { data } = require("./data");
 app.use(express.json()); // Middleware that parses json
 
 // Temporary middleware for allowing cross origin requests
-app.use((req, res, next) => {
-  res.set("Access-Control-Allow-Origin", "*");
-  next();
-});
+if (process.env.NODE_ENV != "PROD") {
+  app.use((req, res, next) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    next();
+  });
+}
 
 app.get("/api/listings", (req, res) => {
   res.status(200).send({
@@ -28,6 +30,15 @@ app.post("/api/listings", (req, res) => {
   } else {
     res.status(415).send();
   }
+});
+
+app.options("/api/listings", (req, res) => {
+  res.setHeader("Allow", "GET, POST");
+  if (process.env.NODE_ENV != "PROD") {
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+  }
+  res.status(204).send();
 });
 
 app.get("/api/listings/:id", (req, res) => {
@@ -72,6 +83,14 @@ app.delete("/api/listings/:id", (req, res) => {
   }
 });
 
+app.options("/api/listings/:id", (req, res) => {
+  res.setHeader("Allow", "GET, PUT, DELETE");
+  if (process.env.NODE_ENV != "PROD") {
+    res.setHeader("Access-Control-Allow-Methods", "GET, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+  }
+  res.status(204).send();
+});
 app.listen(PORT, () =>
   console.log(`The server is alive on http://localhost:${PORT}`),
 );
